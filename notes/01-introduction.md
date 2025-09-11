@@ -79,6 +79,42 @@ Two approaches exist to simplify and standardize environment setup:
 - ✅ Saves infrastructure costs compared to VMs  
 
 ---
+# 🐳 Docker  
+
+## What is Docker?  
+- **Docker** is a free and open-source software/tool.  
+- It is used for **Containerization** → allows us to run applications in **any machine** without worrying about environment setup.  
+
+---
+
+## What is a Container?  
+- A **Container** = **Application Code + Application Dependencies**  
+- Docker ensures all dependencies required by the app are included inside the container.  
+- This removes the need to manually install dependencies on every system.  
+
+---
+
+## Why is Docker Important?  
+
+### 🔹 Portability  
+- Normally, applications fail to run across different environments due to version mismatches or missing dependencies.  
+- With Docker, the **application + dependencies are packaged together**.  
+- This means the same container can run on:  
+  - Developer’s laptop  
+  - Testing environment  
+  - Production servers  
+  - Cloud platforms (AWS, Azure, GCP, etc.)  
+
+➡️ **Build Once, Run Anywhere**  
+
+### 🔹 Other Benefits  
+- Consistent environments across **DEV → SIT → UAT → PROD**  
+- Eliminates the “Works on my machine” issue  
+- Lightweight compared to Virtual Machines  
+- Faster deployments and easy scaling  
+
+---
+
 
 # 🌟 Final Takeaway  
 Without Docker → You manually install **Java, MySQL, Angular, Tomcat** on every environment (error-prone).  
