@@ -114,7 +114,70 @@ Two approaches exist to simplify and standardize environment setup:
 - Faster deployments and easy scaling  
 
 ---
+# 🐳 Docker Architecture  
 
+Docker follows a **Client–Server architecture**. It consists of the following main components:  
+
+---
+
+## 1️⃣ Docker Client  
+- The tool developers use to interact with Docker.  
+- Sends commands to the **Docker Daemon** using REST APIs.  
+- Example commands:  
+  ```bash
+  docker build
+  docker run
+  docker pull
+  docker push
+  ```
+- Multiple clients can talk to the same daemon.
+---
+
+## 2️⃣ Docker Daemon (`dockerd`)  
+- The **core service** that runs on the host machine.  
+- Responsible for:  
+  - Building and running containers  
+  - Managing container lifecycle  
+  - Handling images, networks, and volumes  
+- Listens for requests from the Docker Client.  
+
+---
+
+## 3️⃣ Docker Objects  
+Docker works with several objects:  
+
+- **Images** → Read-only templates used to create containers (e.g., Ubuntu, MySQL, Nginx).  
+- **Containers** → Running instances of images (your actual application).  
+- **Volumes** → Used for persistent storage of data.  
+- **Networks** → Enable communication between multiple containers.  
+
+---
+
+## 4️⃣ Docker Registry  
+- A storage location for Docker images.  
+- **Docker Hub** is the default public registry.  
+- Private registries can also be used (e.g., enterprise).  
+- Commands:  
+  - `docker pull` → Download an image from a registry  
+  - `docker push` → Upload an image to a registry  
+
+---
+
+## 🔄 Workflow Example  
+
+1. Developer runs a command:  
+   ```bash
+   docker run nginx
+   ```
+2. Docker Client sends the request to the Docker Daemon.
+
+3. Daemon checks if the nginx image exists locally:
+
+   -  If not, it pulls the image from the Docker Registry.
+
+4. Daemon creates a container from the image.
+
+5. The container runs the application with all required dependencies.
 
 # 🌟 Final Takeaway  
 Without Docker → You manually install **Java, MySQL, Angular, Tomcat** on every environment (error-prone).  
