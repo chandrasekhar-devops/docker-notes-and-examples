@@ -1,6 +1,6 @@
 Docker Notes
 ============
-Telusko -> DevOps with AWS Live course
+Telusko -> DevOps with AWS Live course  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
 
 Instructor : Hyder Abbas
 
@@ -1124,7 +1124,7 @@ $ docker ps
 curl http://localhost:5000
 
 
-GIT-HUB token : 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
+
 
 ==================================================================================
 Dockerizing a Sample React App
@@ -1312,6 +1312,7 @@ Dockerizing a Python Web App
 Dockerizing a React App
 
 Kubernetes
+
 
 
 
