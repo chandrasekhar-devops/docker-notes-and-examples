@@ -1,0 +1,1349 @@
+Docker Notes
+============
+Telusko -> DevOps with AWS Live course
+
+Instructor : Hyder Abbas
+
+25th Aug 2025 (Tuesday)
+Docker(Containerization) + K8S (Orchestration) + Jenkins(CICD)
+===============================================================
+Linux and Bash Shall Scripting
+AWS Crash Course
+Terraform 
+Ansible
+Tomcat
+Git
+Maven
+
+Docker
+======
+Application Architecture 
+=========================
+1) User Interface --> Frontend --> End user will use app through ui
+   (HTML CSS JS Angular, Reacts ....)
+
+
+2) Backend --> Business logic
+   (Java, Python, .NET, .....)
+
+3) Database : Store Data --> Storage
+   (MySQL, SQLServer, MongoDb, Oracle.....)
+
+Application Code --> Java, MySQL, Angular 16 --> Tomcat
+
+If we want to run our app code, then we must setup all required dependencies(Software which are required to run our application) in the machine
+Example : Java + MySQL + Angular + Tomcat Server
+
+Application Environments
+=======================
+DEV, SIT, UAT, PILOT, PROD
+
+Dev Env used by Developers for code integration testing
+
+SIT env used by Testers for System Integration testing
+
+UAT env used by client team for acceptance testing (Go or No Go)
+
+Pilot env is used for pre-production testing
+
+Prod env used for live deployment(end users can access our app)
+
+
+As a devOps engineer we are responsible to setup infrastructure to run our app  
+--> We need to setup dependencies in all the environments(DEV< SIT< UAT< PILOT< PROD) to run our application
+
+
+In this case there is a high chance of doing mistakes in dependencies installation process (Version compatability issues can occur)
+
+
+Solution for the above problem could be solved in 2 ways
+==> Virtualization
+==> Containerization
+( Refer board work attached with diagrams and Live class recordings )
+
+==> To Simplify application execution in any machine we can go with Docker
+
+
+Docker 
+========
+==> Docker is a free and open source software/tool
+
+==> Used for Containerization  --> We can run our application in any machine
+
+==> Container ==> application code + application dependencies
+(Docker will take care of dependencies installation required for our app)
+==> It will make our app portable using Docker
+
+26th Aug ( Tuesday )
+--------------------
+
+Docker Architecture
+===================
+=> Docker file -> used to specify where the app code and what dependencies are required for app execution
+( Docker file is required to build docker image )
+
+=> Docker Image => Package which contains code + dependencies
+A Docker image is like a blueprint (or template).
+
+It contains everything needed to run an application: the code, runtime, libraries, environment variables, and configuration files.
+ 
+=> Docker Registry ==> is used to store Docker Images
+  Docker Hub --> Cloud based registry provided by Docker to use pre built images and to share our images with others 
+
+=> Docker Container
+
+A Docker container is a running instance of a Docker image.
+
+Containers are lightweight, isolated environments that share the host OS kernel.
+
+=> Docker Daemon -> dockerd 
+The Docker daemon is the background process that makes Docker work.
+
+It listens for Docker commands (like docker run, docker build) and manages images, containers, networks, and volumes.
+
+Install Docker in Linux VM
+--------------------------
+--> Create EC2 VM and Connect to that VM using terminal ( SSH Client )
+
+--> Execute following commands
+
+sudo yum update -y 
+# Update yum package manager and -y ==>  auto approve
+
+sudo yum install docker -y
+#install docker
+
+sudo systemctl start docker 
+sudo systemctl enable docker
+
+# Add ec2-user into docker group
+$ sudo usermod -aG docker ec2-user
+
+
+$ exit 
+# reconnect to same ec2-vm
+
+# Verify Docker installation 
+$ docker -v
+
+Docker Commands
+==============================
+
+$ docker images ==> It will display all the docker images 
+
+$ docker ps ==> It will display running docker containers
+
+$ docker ps -a ==> It will display running docker containers and stopped docker conatiners
+
+$ docker pull < image-id/image-name > ==> Get this from docker registry==> To download docker image 
+
+$ docker run <Image-id/Image-name> ==> To run docker image / To create docker conatiner
+
+$ docker rm <container-id> ==> To delete docker container
+
+$ docker rmi < image-id/image-name > ==> To delete docker image 
+
+$ docker stop < container-id> ==> To stop docker container
+
+$ docker start < container-d > ==> To start docker container
+
+note: docker container must be stopped and deleted before deleting docker image
+
+ex:
+
+docker pull hello-world
+
+$ docker images
+
+REPOSITORY    TAG       IMAGE ID       CREATED       SIZE
+hello-world   latest    1b44b5a3e06a   2 weeks ago   10.1kB
+
+$ docker ps -a
+CONTAINER ID   IMAGE          COMMAND    CREATED          STATUS                      PORTS     NAMES
+7878d57f03d0   1b44b5a3e06a   "/hello"   34 seconds ago   Exited (0) 32 seconds ago             elastic_nash
+
+$ docker rm 7878d57f03d0
+7878d57f03d0
+
+$ docker ps -a
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+
+$ docker images
+REPOSITORY    TAG       IMAGE ID       CREATED       SIZE
+hello-world   latest    1b44b5a3e06a   2 weeks ago   10.1kB
+
+$ docker rmi 1b44b5a3e06a
+
+Untagged: hello-world:latest
+Untagged: hello-world@sha256:a0dfb02aac212703bfcb339d77d47ec32c8706ff250850ecc0e19c8737b18567
+Deleted: sha256:1b44b5a3e06a9aae883e7bf25e45c100be0bb81a0e01b32de604f3ac44711634
+Deleted: sha256:53d204b3dc5ddbc129df4ce71996b8168711e211274c785de5e0d4eb68ec3851
+
+$ docker images
+REPOSITORY   TAG       IMAGE ID   CREATED   SIZE
+
+27th Aug (Wednesday)
+-------------------------------------
+
+$ docker system prune -a ==> System clean up everything is deleted ( stopped containers, unused images ..)
+
+$ docker pull hacker123shiva/springbt-in-docker:latest
+
+$docker run -d <image -d/name> ==> -d ==> represents detached mode
+
+run other commands inn terminal while container is running
+
+$ docker run -d 3f98d4db2087
+
+$ docker logs <container-id> ==> To see logs of container and app
+
+$ docker logs 77d2a5404ec3
+
+--------------------------------------------
+
+Port Mapping -p
+---------------
+docker run -d -p <hostportno>:<containerportno> nameofimage
+
+$ docker run -d -p 8484:8080 hacker123shiva/springbt-in-docker:latest
+
+By default, containers are isolated and run in their own network namespace.
+
+This means services inside a container (say an app running on port 8080) are not accessible from your host machine or external clients.
+
+To expose the service, you must map a container’s internal port to a port on the host machine.
+
+That’s what -p does in Docker.
+
+-p is used for port mapping between host and container.
+
+
+Dockerfile
+============
+Dockerfile contains instructions to build docker image
+
+(Used to specify where is application code and what dependencies are required + pre built images --> Blue print of docker image)
+
+
+==> The following keywords plays important role creating docker file
+
+FROM
+MAINTAINER
+RUN
+CMD
+COPY
+ADD
+WORKDIR
+EXPOSE
+ENTRYPOINT
+USER
+
+FROM
+-----
+It is used to specify base image for our application
+
+FROM python:3.3
+FROM OpenJDK:17
+FROM tomcat:9.0
+FROM node:19.5
+FROM mysql:8.5
+
+MAINTAINER
+----------
+
+It is used to specify author of Dockerfile
+
+MAINTAINER Satyasheel <satyatelusko@telusko.com>
+
+
+RUN
+----
+
+RUN keyword is used to specify instructions to execute at the time of image creation
+
+ex: RUN 'git clone<url>
+ RUN 'mvn clean package'
+
+If required we can write multiple RUN instructions in single Docker file and all those instructions will be processed in order
+
+
+CMD
+----
+CMD keyword is used to specify instructions to execute at the time of docker container creation
+
+ex: CMD 'java -jar app.jar'
+    CMD 'app.py'
+
+One Docker file can have multiple CMD instructions however docker will proceed only last CMD instruction
+
+
+
+example:
+
+$ vi Dockerfile
+
+FROM ubuntu
+
+MAINTAINER Ramu ramu@telusko.com
+
+RUN echo 'hello from telusko'
+
+RUN echo 'hello from haider'
+
+RUN echo 'hello from founder office harsh rawal'
+
+CMD echo 'hi from cmd1'
+
+CMD echo 'hi from cmd2'
+
+$ docker build -t alien .    ==> alien is name of image and . is present directory
+
+$ docker images
+
+$ docker run alien
+
+1st Sep ( Monday )
+--------------------------
+
+Create Docker Image and Push Docker Image into docker hub ( Docker registry ) account
+======================================================================================
+
+==> Create an account in docker hub and make sure username and password you're noting down
+
+==> Docker login
+
+$ docker login
+
+==> Enter user name and password
+
+==> Tag Docker image ( without tagging we cannot push docker image into registry )
+
+$ docker tag <image-name> <tag-name>
+
+$ docker tag image-1 haidertelusko/image-1:v1   ==> Please specify your docker hub user name in place of haidertelusko
+
+==> Push docker image into docker hub
+
+$ docker push <tag-name>
+
+$ docker push haidertelusko/image-1:v1
+
+Later if you want to pull and use that image
+
+$ docker pull haidertelusko/image-1:v1
+
+--------------------------------------------------------------------------------
+Dockerizing Java Web App
+========================
+
+Create a Maven Java web app or clone the existing java web app from github
+
+==> install maven
+
+$ sudo yum install maven -y
+
+$ mvn archetype:generate -DgroupId=com.telusko -DartifactId=my-web-app -DarchetypeArtifactId=maven-archetype-webapp -DinteractiveMode=false
+
+$ cd my-web-app
+
+$ vi pom.xml
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.telusko</groupId>
+  <artifactId>my-web-app</artifactId>
+  <packaging>war</packaging>
+  <version>1.0-SNAPSHOT</version>
+  <name>my-web-app Maven Webapp</name>
+  <url>http://maven.apache.org</url>
+
+  <properties>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.13.2</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <finalName>my-web-app</finalName>
+
+    <plugins>
+      <!-- Java 17 support -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.11.0</version>
+        <configuration>
+          <source>17</source>
+          <target>17</target>
+        </configuration>
+      </plugin>
+
+      <!-- Modern WAR plugin -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <version>3.4.0</version>
+      </plugin>
+    </plugins>
+  </build>
+</project>
+
+=======================================================
+
+$ mvn clean package
+
+
+-------------------------------
+
+Be inside the my-web-app folder/directory
+
+
+$ vi Dockerfile
+
+FROM tomcat:latest
+
+MAINTAINER SatyasheelTelusko
+
+EXPOSE 8080
+
+COPY target/my-web-app.war /usr/local/tomcat/webapps/
+
+$ docker build -t java-web-app
+
+$ docker images
+
+Note : Please login to docker hub before pushing
+
+$ docker tag java-web-app haidertelusko/java-web-app
+
+$ docker push haidertelusko/java-web-app
+
+$ docker run -d -p 8080:8080 java-web-app
+
+==> Enable 8080 in security group of ec2 instance and access the web app use public ip
+
+<public-ip>:8080/my-web-app/
+
+================================================
+$ docker pull haidertelusko/java-web-app:latest
+
+$ docker images
+
+$ docker run -d -p 8080:8080 <image-name/image-id>
+
+$ docker ps
+
+$ docker ps -a
+
+$ docker stop <container-id>
+
+$ docker system prune -a
+
+==================================================
+3 sept ( Wednesday )
+====================
+
+Dockerizing SpringBoot Simple App
+--------------------------------
+Clone Existing Spring Boot App From Git Repo
+
+(make sure git and maven is installed)
+$ git Clone <repo-link>
+
+$ git Clone https://github.com/Haider7214/SpringBoot.git 
+(In this Repo, they are using Java 21 so please install the java version 21)
+
+# Update package index
+sudo apt update
+
+# Install OpenJDK 21
+sudo apt install openjdk-21-jdk -y
+
+
+$ ls -l
+
+Get into the app directory
+
+$ mvn clean package
+
+Note: make this changes in pom.xml
+
+vi pom.xml
+
+        <properties>
+    <java.version>17</java.version>
+        </properties>
+
+
+
+$ vi Dockerfile
+FROM openjdk:17-jdk-slim
+MAINTAINER Dheeraj
+
+COPY target/SpringBoot02-0.0.1-SNAPSHOT.jar /usr/app/
+
+WORKDIR /usr/app
+
+EXPOSE 8080
+
+ENTRYPOINT ["java", "-jar", "SpringBoot02-0.0.1-SNAPSHOT.jar"]
+
+$ docker build -t springboot .
+
+$ docker run -d <imagename/imageid>
+
+
+==============================================
+Dockerizing SpringBoot Gradle App ( rest api)
+===============================================
+
+$ git clone https://github.com/Haider7214/SpringBootGradle.git
+
+Make sure Gradle Build tool is installed
+-----------------------------------------------
+Gradle installation in LINUX VM :
+
+wget https://services.gradle.org/distributions/gradle-8.10.2-bin.zip -P /tmp
+
+sudo mkdir /opt/gradle
+sudo unzip -d /opt/gradle /tmp/gradle-8.10.2-bin.zip
+
+echo 'export PATH=$PATH:/opt/gradle/gradle-8.10.2/bin' >> ~/.bashrc
+source ~/.bashrc
+
+gradle -v
+
+----------------------------------------------------------------------------------------
+
+Gradle installation in Ubuntu VM :
+
+# Install dependencies
+sudo apt update
+sudo apt install wget unzip -y
+
+# Download latest Gradle (example: 8.10.2)
+wget https://services.gradle.org/distributions/gradle-8.10.2-bin.zip -P /tmp
+
+# Extract to /opt/gradle
+sudo unzip -d /opt/gradle /tmp/gradle-8.10.2-bin.zip
+
+# Add Gradle to PATH
+echo 'export PATH=$PATH:/opt/gradle/gradle-8.10.2/bin' >> ~/.bashrc
+source ~/.bashrc
+
+# Verify
+gradle -v
+
+
+-----------------------------------------
+
+Build jar file 
+
+$ gradle clean build -x test
+
+$ vi Dockerfile
+
+# Use lightweight Java image
+FROM openjdk:17-jdk-slim
+
+# Maintainer info
+LABEL maintainer="Dheeraj"
+
+# Copy JAR file from Gradle build output
+COPY build/libs/telusko-1.0.jar /usr/app/
+
+WORKDIR /usr/app
+
+# Expose Spring Boot default port
+EXPOSE 8080
+
+# Run the JAR
+ENTRYPOINT ["java", "-jar", "telusko-1.0.jar"]
+-------------------------------------
+
+$ docker build -t telusko-app .
+
+$ docker run -d -p 8080:8080 telusko-app
+
+$ docker ps 
+
+$ docker stop <container-id>
+
+
+Note: push this image into docker registry
+
+================================================
+4th Sept (Thursday)
+-------------------
+
+ENTRYPOINT
+----------
+==> ENTRYPOINT is used to execute instructions at the time of docker container creation
+
+ex:
+# Run the JAR
+ENTRYPOINT ["java", "-jar", "telusko-1.0.jar"]
+
+ENTRYPOINT ["java", "-jar", "SpringBoot02-0.0.1-SNAPSHOT.jar"]
+
+Note: CMD instruction we can override using command line arguments where ENTRYPOINT instruction we cannot override rather it will append
+
+ex: docker run myapp --server.port=8080
+
+If we pass arguments when running the container, Docker will append them to ENTRYPOINT
+It will not override and it always runs "java", "-jar", "telusko-1.0.jar"
+
+The final command would be  "java", "-jar", "telusko-1.0.jar" myapp --server.port=8080
+
+CMD vs ENTRYPOINT
+-----------------
+Use ENTRYPOINT when you want your container to always execute a specific app.
+
+Use CMD when you want to provide defaults that the user can override.
+
+Use both together for flexibility.
+
+COPY
+====
+==> It is used to copy files from our host machine to container 
+
+ex:
+
+First Source ( Copy from ) and then destination ( paste into )
+
+# Copy JAR file from Gradle build output
+COPY build/libs/telusko-1.0.jar /usr/app/
+
+COPY target/SpringBoot02-0.0.1-SNAPSHOT.jar /usr/app/
+
+ADD keyword
+=============
+==> It is also used to copy files from source to destination
+ex: 
+
+ADD build/libs/telusko-1.0.jar /usr/app/
+
+ADD <http-url> /usr/app
+
+It can copy from internet also
+
+WORKDIR
+=======
+Used to set working directory ( directory navigation )
+
+COPY build/libs/telusko-1.0.jar /usr/app/
+
+WORKDIR /usr/app
+
+
+EXPOSE 
+======
+It is used to specify on which port number our app will run in container
+
+EXPOSE 8080 ==> It will not change port number rather its only to provide information about port number to other team members
+
+USER
+====
+==> It is used to set USER to run commands
+
+
+Task 1: Dockerizing Python App
+Task 2: Dockerizing React App
+Task 3: Setting Up MySQL Db using Docker
+Task 4: Run Jenkins Server using Docker
+
+Docker file commands 
+
+$ docker images
+$ docker ps
+$ docker ps -a
+$ Dockerfile
+$ docker build -t <image-name> .
+$ docker run <imageid-imagename>
+$ docker run -d <imageid-imagename>
+$ docker run -d -p 8080:8080 <imageid-imagename>
+$ docker pull haidertelusko/java-web-app:latest
+$ docker login
+$ docker tag java-web-app haidertelusko/java-web-app
+$ docker push haidertelusko/java-web-app
+$ docker stop <container id>
+$ docker system prune -a
+$ docker logs <container-id>
+
+Docker Network
+==============
+--> Network is all about communication and Docker network is used to provide isolated network for containers
+
+--> If we run two containers under same network then these two containers can communicate with each other
+
+By default there are 3 network in Docker
+----------------------------------------
+==> bridge
+==> host
+==> none
+
+==> Bridge network is a default network for docker containers 
+    It is used to run standalone containers and it will assign one IP address
+
+Each container gets a private IP from Docker’s bridge subnet (e.g., 172.17.x.x).
+
+Containers on the same bridge can communicate with each other using these IPs.
+
+==> Host network is also used to run  stand alone containers and it will not assign any IP for our containers
+
+docker run -d --network host nginx
+
+nginx will run directly on hostsIP and no port mapping is required
+
+When you want to use host's ports directly. Usually useful for high performance scenarios
+
+
+==> None refer to no network will be available for the container
+     
+   Whenever we need complete isolation with no network access and if you don't need any connectivity then we can go with none
+
+   ex: docker run -d --network none my-app
+
+
+docker network commands
+=======================
+
+$ docker network ls 
+
+# display docker networks available
+NETWORK ID     NAME      DRIVER    SCOPE
+21c3eded6374   bridge    bridge    local
+c6d26fcab92c   host      host      local
+20cf839f94d5   none      null      local
+
+$ docker network create <networkname>
+
+$ docker network create telusko-network
+# create new network 
+
+# inspect docker network
+$ docker network inspect telusko-network/bridge/host
+
+cd my-web-app
+
+$ docker build -t my-web-app .
+
+$ docker run -d -p 8080:8080 --network telusko-network <image-id>
+
+$ docker network rm telusko-network 
+# delete the network
+
+
+In addition to the default bridge network, Docker supports several other network drivers, including:
+
+1️) Overlay Network (Docker Swarm/Kubernetes)
+Purpose: Used for multi-host networking, especially in Docker Swarm mode.
+
+How it works: It allows containers running on different Docker hosts (part of a Swarm cluster) to communicate securely as if they were on the same host.
+
+Use case: Perfect for orchestration and service discovery in microservices architecture.
+
+2️) Macvlan Network
+Purpose: Assigns a real (physical) IP address from your LAN to a container.
+
+How it works: The container appears as a separate physical device on the network.
+
+Use case: Useful when containers need to be accessed directly from other devices on the same physical network (e.g., legacy apps, network appliances).
+
+8th Sept (Monday)
+===========================
+
+Docker Compose
+=================
+==> Usually in a microservice app there will be multiple apis and for every api we may have to create separate containers in that case managing these many containers would be difficult (create / start / stop)
+
+==> To Maintain and manage multiple containers it will be difficult 
+
+==> To Overcome this problem we have docker compose
+
+==> Docker Compose is used for defining and running multi-container Docker applications
+
+==> With single commands we can create / start / stop multiple containers
+
+==> It uses YAM file to configure the application's services ( docker-compose.yml ) 
+
+==> docker-compose file is used to specify containers info
+
+==> docker-compose.yml is a default and recommednded name for docker compose file 
+
+-----------------------------------------------------------------
+==> There are 4 sections within docker-compose.yml file
+
+version: represents compose yml version 
+
+services: represents containers info (image-name, portmapping ...)
+
+network: represents docker network to run our containers 
+
+volumes: represents containers storage location
+
+===================================
+docker-compose setup
+======================
+$ docker-compose --version
+
+sudo curl -L "https://github.com/docker/compose/releases/download/v2.24.6/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+
+sudo chmod +x /usr/local/bin/docker-compose
+
+$ docker-compose --version
+
+Practical
+===========
+
+==> Clone the project from repo
+
+$ git clone https://github.com/Haider7214/springboot-mysql-docker-compose.git
+
+$ cd springboot-mysql-docker-compose
+
+$ cd spring-boot-mysql-docker-compose
+
+$ mvn clean package -DskipTest
+
+$ vi Dockerfile
+
+FROM openjdk:17
+EXPOSE 8080
+COPY target/spring-boot-mysql-docker-compose-1.0.jar spring-boot-mysql-docker-compose-1.0.jar
+ENTRYPOINT ["java", "-jar", "/spring-boot-mysql-docker-compose-1.0.jar"]
+
+$ vi docker-compose.yml
+version: "3.8"
+
+services:
+  mysqldb:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root123
+      - MYSQL_DATABASE=sbm
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - springboot-db-net
+
+  application:
+    build: .
+    depends_on:
+      - mysqldb   # ✅ fixed
+    ports:
+      - "8080:8080"
+    networks:
+      - springboot-db-net
+    volumes:
+      - /data/springboot-app
+
+networks:
+  springboot-db-net:
+
+
+$ docker build -t spring-boot-mysql-app .
+
+$ docker-compose up -d
+
+
+$ docker-compose -f hareesh.yml up -d  ( if you have given your own name for yml file (hareesh.yml)  )
+
+Create docker containers using docker compose (whatever info we have specified inside docker compose file)
+
+$ docker-compose ps ==> Check docker containers running
+
+$ docker-compose stop ==> stop docker containers
+
+$ docker-compose start ==> start docker containers
+
+$ docker-compose down --> it will remove docker containers using docker compose
+
+9th Sep (Tuesday)
+====================================================================
+
+stateful container : Data will be there permanently
+
+stateless container : Data will be deleted after container deletion
+
+example: In our Spring Boot MySQL docker compose app , we used MySQL as docker container to store data and when we stop/deleted the containers and re created these containers we lost the data.
+To store application data permanently in this case we may have to make docker container as stateful and hence docker volume concept.
+
+Docker Volume
+==============
+Volumes are used to persist data  which is generated by docker container and to avoid data loss
+
+With the help of docker volumes we can make our containers stateful
+
+$ docker volume ls ==> display docker volumes available 
+
+$ docker volume create telusko-vol  ==> Create new volume by name telusko-vol
+
+$ docker volume rm telusko-vol ==> remove docker volume by name telusko-vol
+
+$ docker volume inspect telusko-vol ==> Inspect our docker volume
+
+
+==> Create mount directory in host machine ( /home/ece2-user/)
+
+$ mkdir app
+
+Mapped this app directory in docker-compose.yml file
+
+vi docker-compose.yml
+version: "3.8"
+
+services:
+  mysqldb:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root123
+      - MYSQL_DATABASE=sbm
+    volumes:
+      - .app:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - springboot-db-net
+
+  application:
+    build: .
+    depends_on:
+      - mysqldb   # ✅ fixed
+    ports:
+      - "8080:8080"
+    networks:
+      - springboot-db-net
+    volumes:
+      - /data/springboot-app
+
+networks:
+  springboot-db-net:
+
+start and stop restart docker-compose to check if data is persistence even after deleting and re creating containers 
+
+======================================================================================================================
+
+Docker Swarm
+=============
+
+==> It is a Orchestration platform  (Managing the process (containers)).
+
+==> Docker swarm is used to setup docker cluster ==> cluster here referring to group of servers(machines).
+
+==> It is a way to run and manage many docker containers across multiple machines and it will handle where to run each container, load balancing traffic across them and keeping everything in sync
+
+==> Here we define a service ( eg app) and Swarm manages its containers and we can easily also scale up/down the number of containers.
+
+
+Docker Swarm Cluster Setup
+===========================
+
+==> Create 3/4 EC2 instances (ubuntu) and install docker in all 3 of these machines 
+
+==> For Swarm Cluster Communications enable 2377 port in the security group
+
+1 => Master Node
+2/3 => Worker Node
+
+Get connected to these EC2 VM and install docker
+
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+
+Check docker version
+
+$ docker --version
+
+Get Connected to Master Node
+
+$ sudo docker swarm init --advertise-addr <private-ip-masternode>
+
+Swarm initialized: current node (h0kzjs3zeoa2crn58vnaqir2i) is now a manager.
+
+==> To add a manager to this swarm, run 'docker swarm join-token manager' and follow the instructions.
+
+$ docker swarm join-token manager
+
+Use below command in all worker nodes
+(To add a worker to this swarm, run the below command)
+
+$ sudo docker swarm join --token SWMTKN-1-2f3x7nda7zufmdlut0dy9ff0cen8cl0u2muh9eeq0rbmdh20px-5h9yko4ql8k1zvkk7runx7rhy 172.31.45.185:2377
+
+
+10th Sep (Wednesday)
+========================
+
+After setup we have 1 master node and 2 worker node(slave nodes) in our cluster
+
+==> Pull the existing image from docker registry or create a new image 
+
+$ docker pull hacker123shiva/springbt-in-docker:latest
+ 
+$ docker images
+
+It will display images in this machine
+
+==> We deploy app as a service in Docker Swarm
+
+==> Service is a collection of one or more containers of same image (same app)
+
+==> Replica is one of the service in docker swarm 
+
+==> By Default 1 replica will be created after we run our service
+
+$ sudo docker service create --name <service-name> -p <hostport>:<containerport> <imagename>
+
+$ sudo docker service create --name telusko-web-app -p 8080:8080 hacker123shiva/springbt-in-docker
+
+Service name could be anything 
+
+$ sudo docker service ls ==> Check services created
+
+ID             NAME              MODE         REPLICAS   IMAGE                                      PORTS
+jtfm91rbvcq4   telusko-web-app   replicated   1/1        hacker123shiva/springbt-in-docker:latest   *:8080->8080/tcp
+
+
+$ docker service scale <servicename>=<no.of.replicas>
+
+$ docker service scale telusko-web-app=3
+
+
+$ sudo docker service ps <servicename> ==> Service details
+
+$ sudo docker service ps telusko-web-app
+
+
+ID             NAME                IMAGE                                      NODE               DESIRED STATE   CURRENT STATE                ERROR     PORTS
+0t8zeoaeikxw   telusko-web-app.1   hacker123shiva/springbt-in-docker:latest   ip-172-31-42-101   Running         Running 6 minutes ago
+uqmezxwz9t9f   telusko-web-app.2   hacker123shiva/springbt-in-docker:latest   ip-172-31-45-185   Running         Running about a minute ago
+ilxd72r45b6n   telusko-web-app.3   hacker123shiva/springbt-in-docker:latest   ip-172-31-36-232   Running         Running about a minute ago
+
+$ sudo docker swarm leave 
+
+$ sudo docker swarm leave --force ==> Remove one node from swarm forcefully 
+
+$ sudo docker service rm <servicename> ==> Remove docker service
+
+
+
+15th Sept (Monday)
+
+Dockerizing a Python Web App
+============================
+
+either clone exisiting python web app from git or create on for demo
+
+$ mkdir python-web-app
+
+python-web-app
+├── Dockerfile
+├── app.py
+└── requirements.txt
+
+
+$ vi app.py
+==============
+
+from flask import Flask
+
+app = Flask(__name__)
+
+@app.route("/")
+def home():
+    return "Hello from Dockerized Flask App! Telusko Learning"
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
+
+
+$ vi requirements.txt
+=======================
+flask
+
+
+$ vi Dockerfile
+================
+
+FROM python:3.11-slim   # Official python base image
+
+LABEL MAINTAINER="SATYASHEEL"  # Maintainer indo
+
+WORKDIR /app # Setting work directory inside container
+
+COPY requirements.txt .    # Copy requirements.txt
+
+RUN pip install --no-cache-dir -r requirements.txt   # Install dependencies
+
+COPY . .  #Copy entire code all code files
+
+EXPOSE 5000   # exposing python flask app post number
+
+CMD ["python", "app.py"]  # run the app ENTRYPOINT can also be specified 
+
+Commands after structure is ready
+=====================================
+
+$ docker build -t python-flask-app .
+
+$ docker images
+
+REPOSITORY         TAG       IMAGE ID       CREATED          SIZE
+python-flask-app   latest    036b8f5bf7c7   11 minutes ago   140MB
+
+
+$ docker run -d -p 5000:5000 python-flask-app
+
+$ docker ps 
+
+<public ip of ec2 instance>:5000  ( make sure security group 5000 is enabled )
+
+curl http://localhost:5000
+
+
+GIT-HUB token : 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
+
+==================================================================================
+Dockerizing a Sample React App
+=================================
+
+# Enable Node.js 18 package
+sudo amazon-linux-extras enable nodejs18
+
+# Install Node.js & npm
+sudo yum install -y nodejs
+
+# Verify
+node -v
+npm -v
+
+--------------------------------------
+$ npx create-react-app telusko-react-app
+
+$ cd telusko-react-app
+
+ cd src
+
+$ vi App.js
+
+import logo from './logo.svg';
+import './App.css';
+
+function App() {
+  return (
+    <div className="App">
+      <h1>Hello Aliens! Demo ==> React + Docker </h1>
+      <p> Telusko Learning React app demo docker app</p>
+    </div>
+  );
+}
+
+cd ..
+=================================================
+
+$ vi Docker file
+
+FROM node:18 # Base image with node.js (this is required to build react app
+
+LABEL MAINTAINER="SATYASHEEL"
+
+WORKDIR /app  # setting working directory inside container
+
+COPY package*.json ./      # copy package.json and install dependencies
+RUN npm install
+
+
+COPY . .  # copy all source code
+
+RUN npm run build  # build react app after we run this output will be inside  /app/build
+
+# Use official Nginx image to serve build files
+FROM nginx:alpine
+
+# Copy React build into Nginx html folder
+COPY --from=0 /app/build /usr/share/nginx/html
+
+# Expose port 80
+EXPOSE 80
+
+# Start Nginx in foreground
+CMD ["nginx", "-g", "daemon off;"]
+
+
+# ---------------------------
+# Build stage
+# ---------------------------
+FROM node:18 AS build
+
+LABEL maintainer="SATYASHEEL"
+
+WORKDIR /app
+
+# Copy only package.json and package-lock.json first (better layer caching)
+COPY package*.json ./
+
+# Install build tools for native modules
+RUN apt-get update && apt-get install -y python3 g++ make \
+    && npm install -g npm@latest \
+    && npm install --legacy-peer-deps
+
+# Copy the rest of the source code
+COPY . .
+
+# Build React app
+RUN npm run build
+
+# ---------------------------
+# Nginx stage
+# ---------------------------
+FROM nginx:alpine
+
+# Copy React build from previous stage
+COPY --from=build /app/build /usr/share/nginx/html
+
+# Expose port 80
+EXPOSE 80
+
+# Start Nginx
+CMD ["nginx", "-g", "daemon off;"]
+
+
+============================================
+
+
+$ docker build -t react-app .
+
+$ docker images
+
+REPOSITORY   TAG       IMAGE ID       CREATED          SIZE
+react-app    latest    99a3dcd6c76b   10 minutes ago   53.7MB
+
+
+$ docker run -d -p 80:80 react-app
+
+<public-ip>
+
+======================================================================
+Multi-Stage Dockerfile
+======================
+# ---------- Stage 1: Build the JAR ----------
+FROM maven:3.9.6-eclipse-temurin-17 AS build
+
+# Set working directory
+WORKDIR /app
+
+# Copy Maven config files first (better caching)
+COPY pom.xml .
+COPY src ./src
+
+# Package the Spring Boot app (skip tests for faster builds)
+RUN mvn clean package -DskipTests
+
+
+# ---------- Stage 2: Run the JAR ----------
+FROM openjdk:17-jdk-slim
+
+LABEL maintainer="Dheeraj"
+
+WORKDIR /usr/app
+
+# Copy only the built JAR from Stage 1
+COPY --from=build /app/target/*.jar app.jar
+
+# Expose Spring Boot default port
+EXPOSE 8080
+
+# Run the JAR
+ENTRYPOINT ["java", "-jar", "app.jar"]
+
+
+
+
+
+
+
+
+
+
+Summary:
+========
+Fundamentals : App architecture and tech stack, app env ( Problems which docker could solve )
+Virtualization vs Containerization 
+Docker Intro, Setup, Architecture
+Dockerfile
+Keyword in Dockerfile
+Docker Images
+Docker Container
+DetachedMode and PortMapping
+Docker Registery (DockerHub)
+Push/Pull image from Docker Hub
+Dockerizing Simple Web App
+Dockerizing SpringBoot Java Web App
+Docker Compose
+Running multiple app/containers (Springboot app + MySQL)
+Docker Network
+Docker Volume
+Docker Swarm
+Multi-Stage Dockerfile
+Dockerizing a Python Web App
+Dockerizing a React App
+
+Kubernetes
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
